@@ -28,35 +28,39 @@ ChartJS.register(
 );
 
 export default function ClassroomDetailsPage() {
-  const { id } = useParams();
-  const [className, setClassName] = useState("");
+  const { id } = useParams(); // e.g. "hall-1"
   const [temperature, setTemperature] = useState(0);
   const [humidity, setHumidity] = useState(0);
   const [airQuality, setAirQuality] = useState(0);
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    const classroomRef = ref(db, `classrooms/${id}`);
-    onValue(classroomRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setClassName(data.name || `Classroom ${id}`);
-        setTemperature(data.sensors?.temperature || 0);
-        setHumidity(data.sensors?.humidity || 0);
-        setAirQuality(data.sensors?.airQuality || 0);
+    const classroomRef = ref(db, `classrooms/${id}/sensors`);
+    const unsubscribe = onValue(classroomRef, (snapshot) => {
+      const sensors = snapshot.val();
+      if (sensors) {
+        setTemperature(sensors.temperature || 0);
+        setHumidity(sensors.humidity || 0);
+        setAirQuality(sensors.airQuality || 0);
 
         setHistory((prev) => [
           ...prev.slice(-19),
           {
             time: new Date().toLocaleTimeString(),
-            temperature: data.sensors?.temperature || 0,
-            humidity: data.sensors?.humidity || 0,
-            airQuality: data.sensors?.airQuality || 0,
+            temperature: sensors.temperature || 0,
+            humidity: sensors.humidity || 0,
+            airQuality: sensors.airQuality || 0,
           },
         ]);
       }
     });
+
+    return () => unsubscribe();
   }, [id]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const lineData = (label, key, color) => ({
     labels: history.map((h) => h.time),
@@ -88,12 +92,6 @@ export default function ClassroomDetailsPage() {
     return status.join(" ");
   };
 
-
-  useEffect(() => {
-  window.scrollTo(0, 0);
-}, []);
-
-
   return (
     <>
       <AdminNavbar />
@@ -104,7 +102,7 @@ export default function ClassroomDetailsPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {className} Environmental Details
+          {id.toUpperCase()} Environmental Details
         </motion.h1>
 
         {/* Gauges */}
