@@ -58,7 +58,7 @@ export default function StudentPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminNavbar />
 
-      <div className="max-w-4xl px-4 py-6 mx-auto mt-20 sm:px-6 md:px-8">
+      <div className="max-w-4xl px-4 py-6 mx-auto mt-16 sm:px-6 md:px-8">
         <motion.h1
           className="mb-6 text-2xl font-bold text-center text-gray-800 sm:text-3xl md:text-4xl md:text-left"
           initial={{ opacity: 0, y: -20 }}
