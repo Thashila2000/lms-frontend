@@ -108,7 +108,7 @@ export default function AirQuality() {
       ticks: {
         autoSkip: true,
         maxTicksLimit: Math.floor(history.length / 2),
-        // ✅ Correct callback for Chart.js v4
+        
         callback: function (value, index) {
           const label = this.getLabelForValue(value);
           return index % 2 === 0 ? label : "";
@@ -156,9 +156,11 @@ export default function AirQuality() {
           className="flex items-center gap-3 mb-6 text-2xl font-bold text-gray-800 sm:text-3xl md:text-4xl md:text-left"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
           <FaLeaf className="text-green-600" size={36} />
-          <span>{meta.name} Environmental Details {slug && `– ${slug}`}</span>
+          <span> {meta.name} Environmental Details {slug && `– ${slug.toUpperCase()}`}
+</span>
         </motion.h1>
 
         {/* Classroom Image */}

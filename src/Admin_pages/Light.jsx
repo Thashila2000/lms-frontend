@@ -5,8 +5,8 @@ import { lightControlDB } from "../firebase";
 import { motion } from "framer-motion";
 import AdminNavbar from "../Components/Admin_navbar";
 
-// React Icons
-import { FaLightbulb, FaPowerOff, FaBolt, FaSun, FaUserShield } from "react-icons/fa";
+// Icons
+import { FaLightbulb, FaPowerOff, FaBolt, FaSun, FaUserShield, FaRunning } from "react-icons/fa";
 import { MdUpdate, MdOutlineMode } from "react-icons/md";
 
 const brightnessLevels = [
@@ -16,22 +16,19 @@ const brightnessLevels = [
   { label: "High", value: 255, icon: <FaBolt /> },
 ];
 
-const getRelayStates = (brightness) => ({
-  main: brightness > 0,
-  level1: brightness >= 85,
-  level2: brightness >= 170,
-});
-
 export default function Light_Control() {
   const { slug } = useParams();
   const [mode, setMode] = useState("manual");
+  const [manualLevel, setManualLevel] = useState("medium");
   const [brightness, setBrightness] = useState(0);
-  const [relayStates, setRelayStates] = useState(getRelayStates(0));
+  const [relayState, setRelayState] = useState({ main: false });
   const [ambientBrightness, setAmbientBrightness] = useState(0);
+  const [motionDetected, setMotionDetected] = useState(false);
   const [powerConsumption, setPowerConsumption] = useState(0);
   const [userOverride, setUserOverride] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [bulbBrightness, setBulbBrightness] = useState(0);
 
   const formattedTimestamp = useMemo(() => {
     if (!lastUpdated) return "—";
@@ -39,27 +36,44 @@ export default function Light_Control() {
     return date.toLocaleString();
   }, [lastUpdated]);
 
+  // Update relayState whenever brightness changes
+  useEffect(() => {
+    setRelayState({ main: brightness > 0 });
+  }, [brightness]);
+
+  // Manual brightness update 
   const updateBrightness = async (value) => {
     if (!slug) return;
-    const relays = getRelayStates(value);
 
     setBrightness(value);
-    setRelayStates(relays);
+    setBulbBrightness(value);
+
+    let newManualLevel = "off";
+    if (value === 85) newManualLevel = "low";
+    else if (value === 170) newManualLevel = "medium";
+    else if (value === 255) newManualLevel = "high";
+    setManualLevel(newManualLevel);
+
+    setRelayState({ main: value > 0 });
 
     try {
       const docRef = doc(lightControlDB, "classrooms", slug);
       await updateDoc(docRef, {
+        mode: "manual",
+        manualLevel: newManualLevel,
+        userOverride: true,
         "lightControl.mode": "manual",
+        "lightControl.manualLevel": newManualLevel,
         "lightControl.bulbBrightness": value,
-        "lightControl.relayState": relays,
-        "lightControl.timeStamp": new Date().toISOString(),
         "lightControl.userOverride": true,
+        "lightControl.timeStamp": new Date().toISOString(),
       });
     } catch (error) {
       console.error("Failed to update brightness:", error);
     }
   };
 
+  // Switch mode
   const toggleMode = async () => {
     if (!slug) return;
     const newMode = mode === "manual" ? "auto" : "manual";
@@ -67,33 +81,41 @@ export default function Light_Control() {
 
     try {
       const docRef = doc(lightControlDB, "classrooms", slug);
-      await updateDoc(docRef, { "lightControl.mode": newMode });
+      await updateDoc(docRef, {
+        mode: newMode,
+        "lightControl.mode": newMode,
+      });
     } catch (error) {
       console.error("Failed to toggle mode:", error);
     }
   };
 
+  // Firestore listener
   useEffect(() => {
     if (!slug) {
-      console.warn("Missing slug from URL. Cannot fetch document.");
+      console.warn("Missing slug from URL.");
       return;
     }
 
     const docRef = doc(lightControlDB, "classrooms", slug);
-
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         const control = data.lightControl || {};
 
-        setMode(control.mode || "manual");
+        setMode(data.mode || control.mode || "manual");
+        setManualLevel(data.manualLevel || control.manualLevel || "medium");
         setBrightness(control.bulbBrightness ?? 0);
-        setRelayStates(
-          control.relayState ?? getRelayStates(control.bulbBrightness ?? 0)
-        );
+        setBulbBrightness(control.bulbBrightness ?? 0);
+        setRelayState({ main: (control.bulbBrightness ?? 0) > 0 });
+
         setAmbientBrightness(control.ambientBrightness ?? 0);
-        setPowerConsumption(control.powerConsumption ?? 0);
-        setUserOverride(control.userOverride ?? false);
+        setMotionDetected(control.motionDetected ?? false);
+
+        // typo from Arduino
+        setPowerConsumption(control.powerConsumpsion ?? 0);
+
+        setUserOverride(data.userOverride ?? control.userOverride ?? false);
         setLastUpdated(control.timeStamp || null);
         setLoading(false);
       }
@@ -102,13 +124,15 @@ export default function Light_Control() {
     return () => unsubscribe();
   }, [slug]);
 
+  const isRelayOn = brightness > 0;
+
   return (
     <>
       <AdminNavbar />
       <div className="p-4 mt-16 ml-0 md:ml-64 md:p-8">
         {/* Title */}
         <motion.h2
-          className="flex items-center gap-3 mb-6 text-2xl font-bold text-center text-gray-800 sm:text-3xl md:text-4xl md:text-left"
+          className="flex items-center gap-3 mb-6 text-2xl font-bold text-gray-800 sm:text-3xl md:text-4xl"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -123,17 +147,8 @@ export default function Light_Control() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <motion.div
-              className="w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5 }}
-            />
-            <motion.p
-              className="mt-4 text-sm font-medium animate-pulse"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <motion.div className="w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin" />
+            <motion.p className="mt-4 text-sm font-medium animate-pulse">
               Fetching light control data...
             </motion.p>
           </motion.div>
@@ -152,7 +167,7 @@ export default function Light_Control() {
               </span>
               <button
                 onClick={toggleMode}
-                className="px-4 py-2 ml-5 text-white transition bg-gray-800 rounded-lg hover:bg-gray-600"
+                className="px-4 py-2 ml-5 text-white bg-gray-800 rounded-lg hover:bg-gray-600"
               >
                 Switch to {mode === "manual" ? "AUTO" : "MANUAL"}
               </button>
@@ -191,29 +206,16 @@ export default function Light_Control() {
                 <h3 className="flex items-center gap-2 mb-4 text-lg font-semibold">
                   <FaBolt className="text-blue-600" /> Relay Status
                 </h3>
-                {Object.entries(relayStates).map(([key, value], i) => (
-                  <motion.p
-                    key={key}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-2 mb-2 text-gray-700"
+                <motion.p className="flex items-center gap-2 mb-2 text-gray-700">
+                  <FaPowerOff className={`${isRelayOn ? "text-green-500" : "text-red-500"}`} />
+                  MAIN:{" "}
+                  <motion.span
+                    animate={{ color: isRelayOn ? "#16a34a" : "#dc2626" }}
+                    className="font-semibold"
                   >
-                    <FaPowerOff
-                      className={`${
-                        value ? "text-green-500" : "text-red-500"
-                      }`}
-                    />
-                    {key.toUpperCase()}:{" "}
-                    <motion.span
-                      animate={{ color: value ? "#16a34a" : "#dc2626" }}
-                      transition={{ duration: 0.5 }}
-                      className="font-semibold"
-                    >
-                      {value ? "ON" : "OFF"}
-                    </motion.span>
-                  </motion.p>
-                ))}
+                    {isRelayOn ? "ON" : "OFF"}
+                  </motion.span>
+                </motion.p>
               </div>
 
               {/* System Info */}
@@ -221,18 +223,27 @@ export default function Light_Control() {
                 <h3 className="flex items-center gap-2 mb-4 text-lg font-semibold">
                   <FaUserShield className="text-purple-600" /> System Info
                 </h3>
+
                 <p className="flex items-center gap-2">
-                  <FaSun className="text-yellow-500" /> Ambient Brightness:{" "}
-                  {ambientBrightness}
+                  <FaSun className="text-yellow-500" /> Ambient Brightness: {ambientBrightness}
                 </p>
+
                 <p className="flex items-center gap-2">
-                  <FaBolt className="text-blue-500" /> Power Consumption:{" "}
-                  {powerConsumption} W
+                  <FaLightbulb className="text-orange-500" /> Bulb Brightness: {bulbBrightness}
                 </p>
+
                 <p className="flex items-center gap-2">
-                  <FaUserShield className="text-gray-600" /> User Override:{" "}
-                  {userOverride ? "Yes" : "No"}
+                  <FaRunning className="text-green-600" /> Motion Detected: {motionDetected ? "Yes" : "No"}
                 </p>
+
+                <p className="flex items-center gap-2">
+                  <FaBolt className="text-blue-500" /> Power Consumption: {powerConsumption} W
+                </p>
+
+                <p className="flex items-center gap-2">
+                  <FaUserShield className="text-gray-600" /> User Override: {userOverride ? "Yes" : "No"}
+                </p>
+
                 <p className="flex items-center gap-2 mt-2 text-sm text-gray-500">
                   <MdUpdate /> Last Updated: {formattedTimestamp}
                 </p>

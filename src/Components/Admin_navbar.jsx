@@ -59,18 +59,24 @@ export default function AdminNavbar() {
               aria-label="Open sidebar"
             />
           )}
-          <span className="text-lg font-bold tracking-wide sm:text-xl">Admin Panel</span>
-        </div>
+      <img
+        src="https://www.harlow-college.ac.uk/images/harlow_college/study-options/course-areas/bright-futures/redesign/bright-futures-logo-large-cropped.png" 
+        alt="Bright Future Logo"
+      className="object-contain w-auto h-10 sm:h-14"
+
+
+      />
+    </div>
 
         {/* Right: Search + Icons */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           <input
             type="text"
             placeholder="Search..."
-            className="w-32 px-3 py-1 text-gray-800 transition-all border border-gray-300 rounded-full sm:w-48 md:w-64 sm:py-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="w-32 px-3 py-1 text-gray-800 transition-all border border-gray-300 rounded-full sm:w-48 md:w-64 sm:py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
-          <FaBell className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-purple-600" />
-          <FaUserCircle className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-purple-600" />
+          <FaBell className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-blue-500" />
+          <FaUserCircle className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-blue-500" />
         </div>
       </header>
 
@@ -79,7 +85,7 @@ export default function AdminNavbar() {
         {isSidebarOpen && (
           <motion.nav
             key="sidebar"
-            className="fixed top-16 left-0 z-40 w-64 h-full text-white bg-gradient-to-b from-[#4A00E0] to-[#8E2DE2] shadow-lg rounded-tr-2xl rounded-br-2xl"
+            className="fixed left-0 z-40 w-64 h-full text-white shadow-lg top-16 bg-gradient-to-b from-blue-500 via-cyan-500 to-green-400 rounded-tr-2xl rounded-br-2xl"
             initial="closed"
             animate="open"
             exit="closed"
@@ -95,7 +101,9 @@ export default function AdminNavbar() {
                   <NavLink
                     to={path}
                     className={({ isActive }) =>
-                      `block px-3 py-2 rounded-lg transition-colors duration-200 text-sm sm:text-base ${
+                     `block px-3 py-2 rounded-lg transition-colors duration-200 text-lg font-medium tracking-normal ${
+
+
                         isActive ? 'bg-white/30 font-semibold' : 'hover:bg-white/20'
                       }`
                     }
