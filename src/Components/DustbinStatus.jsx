@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-const API_BASE = "http://192.168.8.133"; 
+const API_BASE = "http://192.168.8.134"; 
 
 export default function SmartDustbin() {
   const [level, setLevel] = useState(null);

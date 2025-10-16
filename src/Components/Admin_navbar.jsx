@@ -44,6 +44,7 @@ export default function AdminNavbar() {
     { label: 'Home', path: '/admin_home' },
     { label: 'Students', path: '/students' },
     { label: 'Classrooms', path: '/classrooms' },
+    { label: 'Add Schedules', path: '/add_schedule' },
   ];
 
   return (

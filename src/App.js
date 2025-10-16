@@ -9,6 +9,9 @@ import ClassroomDetailsPage from "./Admin_pages/ClassRoomDetails";
 import DoorControl from "./Admin_pages/DoorLock";
 import SmartControl from './Admin_pages/SmartControl';
 import StudentTracking from './Admin_pages/StudentTracking';
+import Lms_Home from './Student_pages/Lms_Home';
+import AddSchedule from './Components/Add_schedule';
+import ViewSchedule from './Components/View_Schedule';
 
 
 
@@ -19,6 +22,7 @@ function App() {
     <div>
     <Router>
       <Routes>
+        //Admin pages
         <Route path="/admin_home" element={<AdminHomePage />} />
         <Route path="/students" element={<Students />} />
         <Route path="/classrooms" element={<ClassroomsPage />} />
@@ -31,7 +35,13 @@ function App() {
         <Route path="/doorcontrol/:slug" element={<DoorControl />} />
         <Route path="/smartcontrol/:slug" element={<SmartControl />} />
         <Route path="/studenttracking/:slug" element={<StudentTracking />} />
+        <Route path="/add_schedule" element={<AddSchedule />} />
 
+        //Student pages
+         
+           <Route path="/" element={<Lms_Home />} />
+           
+      
         
 
       </Routes>

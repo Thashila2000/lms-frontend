@@ -9,7 +9,7 @@ const controlOptions = [
     color: "from-green-500 to-green-700",
   },
   {
-    name: "Air Quality Monitoring",
+    name: "Environmental details",
     slug: "air-quality",
     path: "airquality",
     color: "from-blue-500 to-blue-700",
