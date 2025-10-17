@@ -11,7 +11,7 @@ import SmartControl from './Admin_pages/SmartControl';
 import StudentTracking from './Admin_pages/StudentTracking';
 import Lms_Home from './Student_pages/Lms_Home';
 import AddSchedule from './Components/Add_schedule';
-import ViewSchedule from './Components/View_Schedule';
+import CourseManage from './Admin_pages/Course_manage';
 
 
 
@@ -36,6 +36,7 @@ function App() {
         <Route path="/smartcontrol/:slug" element={<SmartControl />} />
         <Route path="/studenttracking/:slug" element={<StudentTracking />} />
         <Route path="/add_schedule" element={<AddSchedule />} />
+        <Route path="/manage_courses" element={<CourseManage />} />
 
         //Student pages
          
