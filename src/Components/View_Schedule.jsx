@@ -31,9 +31,7 @@ function ViewSchedule() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTick((prev) => prev + 1);
-    }, 30000);
+    const interval = setInterval(() => setTick((t) => t + 1), 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,7 +40,6 @@ function ViewSchedule() {
     tasks.forEach((task) => {
       const start = new Date(task.startTime);
       const end = new Date(start.getTime() + task.duration * 60 * 60 * 1000);
-
       const isActive = now >= start && now < end;
       const notShown = !shownTasks.includes(task.id);
 
@@ -89,24 +86,31 @@ function ViewSchedule() {
   const handleSubmit = (task) => {
     console.log(`Submitted task: ${task.name}`, task);
     toast.success(`✅ Task "${task.name}" submitted successfully`);
-    // Add actual submission logic here
   };
 
   return (
     <>
       <StudentNavbar />
-      <div className="flex items-center justify-center px-4 mt-20">
+
+      <div className="min-h-screen px-6 pt-24 pb-12 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-4xl p-6 mx-auto bg-white shadow-xl rounded-2xl"
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="max-w-5xl p-8 mx-auto border shadow-2xl bg-white/80 backdrop-blur-lg border-white/40 rounded-3xl"
         >
-          <h2 className="flex items-center justify-center mb-6 text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">
-            <FaClipboardList className="mr-2 text-purple-600" />
+          {/* Page Title */}
+          <motion.h2
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center justify-center mb-8 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+          >
+            <FaClipboardList className="mr-3 text-blue-600" />
             Scheduled Tasks
-          </h2>
+          </motion.h2>
 
+          {/* Task Cards */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {tasks.map((task, index) => {
               const _ = tick;
@@ -121,15 +125,15 @@ function ViewSchedule() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.03 }}
-                  className={`p-5 rounded-2xl border shadow-md transition-all ${
+                  className={`p-5 rounded-2xl transition-all shadow-lg border ${
                     isExpired
-                      ? "bg-gray-100 border-gray-300"
-                      : "bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200"
+                      ? "bg-white/70 border-gray-200"
+                      : "bg-gradient-to-br from-blue-100/70 via-indigo-100/70 to-purple-100/70 border-blue-200"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-                      <FaClipboardList className="text-blue-500" />
+                      <FaClipboardList className="text-indigo-600" />
                       {task.name}
                     </h3>
                     {isExpired ? (
@@ -141,17 +145,18 @@ function ViewSchedule() {
                     )}
                   </div>
 
-                  <div className="space-y-1 text-sm text-gray-700">
+                  <div className="space-y-2 text-sm text-gray-700">
                     <p className="flex items-center gap-2">
                       <FaClock className="text-indigo-500" />
-                      Duration: <span className="font-medium">{task.duration}h</span>
+                      Duration:{" "}
+                      <span className="font-medium">{task.duration}h</span>
                     </p>
                     <p className="flex items-center gap-2">
-                      <FaCalendarAlt className="text-purple-500" />
+                      <FaCalendarAlt className="text-blue-500" />
                       Start: {formatTime(task.startTime)}
                     </p>
                     <p className="flex items-center gap-2">
-                      <FaCalendarAlt className="text-pink-500" />
+                      <FaCalendarAlt className="text-purple-500" />
                       End: {formatTime(endTime?.toISOString())}
                     </p>
                   </div>
@@ -162,7 +167,7 @@ function ViewSchedule() {
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleSubmit(task)}
                         disabled={!canSubmit}
-                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md ${
                           canSubmit
                             ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg"
                             : "bg-gray-300 text-gray-600 cursor-not-allowed"
@@ -178,6 +183,7 @@ function ViewSchedule() {
           </div>
         </motion.div>
       </div>
+
       <ToastContainer position="bottom-right" autoClose={5000} />
     </>
   );

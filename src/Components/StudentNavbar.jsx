@@ -33,7 +33,7 @@ export default function StudentNavbar() {
 
         {/* Center: Navigation */}
         <nav className="items-center hidden space-x-6 font-medium text-gray-800 md:flex">
-          <NavLink to="/student_dashboard" className= "hover:text-blue-600">Dashboard</NavLink>
+          
           <NavLink to="/student_courses" className="hover:text-blue-600">Courses</NavLink>
           
 
@@ -71,7 +71,10 @@ export default function StudentNavbar() {
           </div>
 
           <NavLink to="/student_news" className="hover:text-blue-600">News</NavLink>
+           <NavLink to="/results" className="hover:text-blue-600">Results</NavLink>
           <NavLink to="/student_help" className="hover:text-blue-600">Help</NavLink>
+          
+          
         </nav>
 
         {/* Right: Search + Icons */}

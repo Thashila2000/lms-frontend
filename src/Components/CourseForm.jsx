@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Toast from "./Toast";
 import { motion } from "framer-motion";
-import { FaBook, FaTags, FaUpload, FaLevelUpAlt, FaCheckCircle } from "react-icons/fa";
+import {
+  FaBook,
+  FaTags,
+  FaUpload,
+  FaLevelUpAlt,
+  FaCheckCircle,
+} from "react-icons/fa";
 
 export default function CourseForm({ existingCourse, onSave }) {
   const [form, setForm] = useState({
@@ -13,6 +19,7 @@ export default function CourseForm({ existingCourse, onSave }) {
     prerequisites: "",
     imageUrl: "",
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [toast, setToast] = useState(null);
@@ -21,12 +28,19 @@ export default function CourseForm({ existingCourse, onSave }) {
     if (existingCourse) {
       setForm({
         ...existingCourse,
-        tags: existingCourse.tags.join(","),
-        prerequisites: existingCourse.prerequisites.join(","),
+        tags: existingCourse.tags.join(", "),
+        prerequisites: existingCourse.prerequisites.join(", "),
       });
-      setPreview(existingCourse.imageUrl);
+      setPreview(`http://localhost:8080${existingCourse.imageUrl}`);
     }
   }, [existingCourse]);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,33 +52,41 @@ export default function CourseForm({ existingCourse, onSave }) {
   };
 
   const handleImageUpload = async () => {
-    const formData = new FormData();
-    formData.append("file", imageFile);
-    const res = await axios.post("/api/admin/courses/upload-image", formData);
-    return res.data;
+    try {
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      const res = await axios.post("/api/admin/courses/upload-image", formData);
+      return res.data;
+    } catch (err) {
+      console.error("Image upload failed:", err);
+      throw new Error("Image upload failed");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       let imageUrl = form.imageUrl;
-      if (imageFile) imageUrl = await handleImageUpload();
+      if (imageFile) {
+        imageUrl = await handleImageUpload();
+      }
 
       const payload = {
         ...form,
-        imageUrl,
-        tags: form.tags.split(",").map((t) => t.trim()),
-        prerequisites: form.prerequisites.split(",").map((p) => p.trim()),
+        imageUrl: imageUrl || "",
+        tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        prerequisites: form.prerequisites.split(",").map((p) => p.trim()).filter(Boolean),
       };
 
       if (existingCourse) {
         await axios.put(`/api/admin/courses/${existingCourse.id}`, payload);
-        setToast("Course updated successfully!");
+        setToast("✅ Course updated successfully!");
       } else {
         await axios.post("/api/admin/courses", payload);
-        setToast("Course added successfully!");
+        setToast("✅ Course added successfully!");
       }
 
+      // ✅ Clear form after both add and update
       setForm({
         title: "",
         description: "",
@@ -75,9 +97,18 @@ export default function CourseForm({ existingCourse, onSave }) {
       });
       setImageFile(null);
       setPreview(null);
+
       onSave?.();
     } catch (err) {
-      setToast(err.response?.data || "Error saving course");
+      console.error("Save error:", err);
+      const raw = err.response?.data;
+      const message =
+        typeof raw === "string"
+          ? raw
+          : typeof raw?.message === "string"
+          ? raw.message
+          : "❌ Error saving course";
+      setToast(message);
     }
   };
 
@@ -201,7 +232,7 @@ export default function CourseForm({ existingCourse, onSave }) {
         </div>
       </form>
 
-      <Toast message={toast} onClose={() => setToast(null)} />
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </motion.div>
   );
 }

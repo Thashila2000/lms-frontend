@@ -9,9 +9,16 @@ import ClassroomDetailsPage from "./Admin_pages/ClassRoomDetails";
 import DoorControl from "./Admin_pages/DoorLock";
 import SmartControl from './Admin_pages/SmartControl';
 import StudentTracking from './Admin_pages/StudentTracking';
-import Lms_Home from './Student_pages/Lms_Home';
+import Dashboard from './Student_pages/Dashboard';
 import AddSchedule from './Components/Add_schedule';
 import CourseManage from './Admin_pages/Course_manage';
+import LandingPage from './Student_pages/Landing_Page';
+import LogInPage from './Student_pages/LogInPage';
+import Register from './Admin_pages/Register';
+import ManageDegrees from './Admin_pages/Manage_Degree';
+import BadgeManage from './Admin_pages/BadgeManage';
+import StudentResultDisplay from './Student_pages/StudentResultDisplay';
+
 
 
 
@@ -37,10 +44,21 @@ function App() {
         <Route path="/studenttracking/:slug" element={<StudentTracking />} />
         <Route path="/add_schedule" element={<AddSchedule />} />
         <Route path="/manage_courses" element={<CourseManage />} />
+        <Route path="/manage_degrees" element={<ManageDegrees />} />
+        <Route path="/manage_badge/:slug" element={<BadgeManage/>} />
+
 
         //Student pages
          
-           <Route path="/" element={<Lms_Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LogInPage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/results" element={<StudentResultDisplay />} />
+
+             
+             
+
            
       
         

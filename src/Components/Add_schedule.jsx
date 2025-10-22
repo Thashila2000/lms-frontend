@@ -148,20 +148,21 @@ function AddSchedule() {
   return (
     <>
       <AdminNavbar />
-      <div className="flex flex-col justify-center gap-8 px-4 mt-20 ml-64 md:flex-row">
+
+      <div className="flex flex-col justify-center min-h-screen gap-8 px-4 mt-24 ml-64 md:flex-row bg-gradient-to-br from-white/60 via-blue-50/60 to-purple-50/60">
         {/* Left Form Section */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-xl p-6 bg-white border border-gray-200 shadow-lg rounded-2xl"
+          className="w-full max-w-xl p-8 border border-gray-200 shadow-xl bg-white/80 backdrop-blur-md rounded-2xl"
         >
-          <h2 className="flex items-center justify-center mb-6 text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">
+          <h2 className="flex items-center justify-center mb-6 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
             <FaTasks className="mr-2 text-blue-600" />
             Add New Task
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="flex items-center gap-2 font-medium text-gray-700">
                 <FaTasks className="text-blue-500" /> Task Name
@@ -172,7 +173,7 @@ function AddSchedule() {
                 value={task.name}
                 onChange={(e) => setTask({ ...task, name: e.target.value })}
                 required
-                className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400"
+                className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-400"
               />
             </div>
 
@@ -188,7 +189,7 @@ function AddSchedule() {
                   setTask({ ...task, duration: parseInt(e.target.value) })
                 }
                 required
-                className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-indigo-400"
+                className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-400"
               />
             </div>
 
@@ -202,7 +203,7 @@ function AddSchedule() {
                 onChange={(e) =>
                   setTask({ ...task, priority: parseInt(e.target.value) })
                 }
-                className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-purple-400"
+                className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400"
               />
             </div>
 
@@ -211,12 +212,12 @@ function AddSchedule() {
               <label className="flex items-center gap-2 mt-4 font-medium text-gray-700">
                 <FaLink className="text-green-500" /> Select Dependencies
               </label>
-              <div className="p-2 mt-2 space-y-2 overflow-y-auto border rounded-lg max-h-40">
+              <div className="p-2 mt-2 space-y-2 overflow-y-auto border rounded-lg shadow-sm max-h-40 bg-white/60">
                 {availableTasks.length > 0 ? (
                   availableTasks.map((t) => (
                     <div
                       key={t.id}
-                      className="flex items-center justify-between p-1 text-sm rounded hover:bg-gray-50"
+                      className="flex items-center justify-between p-1 text-sm rounded hover:bg-indigo-50"
                     >
                       <label className="flex items-center space-x-2">
                         <input
@@ -232,7 +233,7 @@ function AddSchedule() {
                       <button
                         onClick={() => handleDelete(t.id)}
                         type="button"
-                        className="p-1 text-white bg-red-500 rounded hover:bg-red-600"
+                        className="p-1 text-white transition-all bg-red-500 rounded hover:bg-red-600"
                       >
                         <FaTrashAlt />
                       </button>
@@ -258,7 +259,7 @@ function AddSchedule() {
                   }
                 }}
                 disabled={hasDependencies}
-                className={`w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 ${
+                className={`w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 ${
                   hasDependencies
                     ? "bg-gray-100 cursor-not-allowed"
                     : "focus:ring-pink-400"
@@ -266,7 +267,7 @@ function AddSchedule() {
               />
               {hasDependencies && (
                 <p className="mt-1 text-sm text-gray-500">
-                  ⏱️ Start time auto-set to the end of latest dependency.
+                  ⏱ Start time auto-set to the end of latest dependency.
                 </p>
               )}
             </div>
@@ -275,7 +276,7 @@ function AddSchedule() {
             <motion.button
               whileTap={{ scale: 0.95 }}
               type="submit"
-              className="flex items-center justify-center w-full gap-2 px-4 py-2 text-white transition-all rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-lg"
+              className="flex items-center justify-center w-full gap-2 px-4 py-2 text-white transition-all rounded-lg shadow-md bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:shadow-xl"
             >
               <FaPlusCircle />
               Add Task
@@ -293,6 +294,7 @@ function AddSchedule() {
           <ViewScheduleList refreshTrigger={refreshTrigger} />
         </motion.div>
       </div>
+
       <ToastContainer position="bottom-right" autoClose={4000} />
     </>
   );

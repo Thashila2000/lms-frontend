@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaBars, FaBell, FaUserCircle } from 'react-icons/fa';
-import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaBars, FaBell, FaUserCircle } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
 
-export default function AdminNavbar() {
+export default function AdminNavbar({ searchQuery, setSearchQuery }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [suggestions, setSuggestions] = useState([]);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -14,47 +16,63 @@ export default function AdminNavbar() {
       setIsSidebarOpen(!mobile);
     };
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!(searchQuery || "").trim()) {
+        setSuggestions([]);
+        return;
+      }
+      try {
+        const res = await fetch(`/api/admin/courses/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        setSuggestions(data);
+      } catch (err) {
+        console.error("Search failed", err);
+        setSuggestions([]);
+      }
+    };
 
-  // Smooth sidebar animation
+    const delay = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(delay);
+  }, [searchQuery]);
+
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
   const sidebarVariants = {
     open: {
       x: 0,
       opacity: 1,
-      transition: { type: 'spring', stiffness: 80, damping: 14 }
+      transition: { type: "spring", stiffness: 80, damping: 14 },
     },
     closed: {
-      x: '-100%',
+      x: "-100%",
       opacity: 0,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   };
 
-  // Overlay fade
   const overlayVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 0.5 }
+    visible: { opacity: 0.5 },
   };
 
   const navLinks = [
-    { label: 'Home', path: '/admin_home' },
-    { label: 'Students', path: '/students' },
-    { label: 'Classrooms', path: '/classrooms' },
-    { label: 'Add Schedules', path: '/add_schedule' },
-    { label: 'Manage Courses', path: '/manage_courses' },
-    
-   
+    { label: "Home", path: "/admin_home" },
+    { label: "Students", path: "/students" },
+    { label: "Classrooms", path: "/classrooms" },
+    { label: "Add Schedules", path: "/add_schedule" },
+    { label: "Manage Courses", path: "/manage_courses" },
+    { label: "Manage Degrees", path: "/manage_degrees" },
+    { label: "Register", path: "/register" },
   ];
 
   return (
     <div className="relative">
-      {/* Navbar */}
       <header className="fixed top-0 left-0 z-50 flex items-center justify-between w-full h-16 px-3 bg-white shadow-md sm:px-6 md:px-8">
-        {/* Left: Logo + Hamburger */}
         <div className="flex items-center space-x-3 sm:space-x-4">
           {isMobile && (
             <FaBars
@@ -63,28 +81,41 @@ export default function AdminNavbar() {
               aria-label="Open sidebar"
             />
           )}
-      <img
-        src="https://www.harlow-college.ac.uk/images/harlow_college/study-options/course-areas/bright-futures/redesign/bright-futures-logo-large-cropped.png" 
-        alt="Bright Future Logo"
-      className="object-contain w-auto h-10 sm:h-14"
+          <img
+            src="https://www.harlow-college.ac.uk/images/harlow_college/study-options/course-areas/bright-futures/redesign/bright-futures-logo-large-cropped.png"
+            alt="Bright Future Logo"
+            className="object-contain w-auto h-10 sm:h-14"
+          />
+        </div>
 
-
-      />
-    </div>
-
-        {/* Right: Search + Icons */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="relative flex items-center space-x-2 sm:space-x-4">
           <input
             type="text"
             placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             className="w-32 px-3 py-1 text-gray-800 transition-all border border-gray-300 rounded-full sm:w-48 md:w-64 sm:py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
-          <FaBell className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-blue-500" />
-          <FaUserCircle className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-blue-500" />
+          {isFocused && suggestions.length > 0 && (
+            <ul className="absolute left-0 z-50 w-full mt-1 overflow-hidden text-sm bg-white border border-gray-300 rounded-lg shadow-lg top-full max-h-60">
+              {suggestions.map((course) => (
+                <li
+                  key={course.id}
+                  onMouseDown={() => setSearchQuery(course.title)}
+                  className="px-4 py-2 cursor-pointer hover:bg-blue-100"
+                >
+                  {course.title}
+                </li>
+              ))}
+            </ul>
+          )}
+          <FaBell className="text-xl text-gray-800 cursor-pointer sm:text-2xl hover:text-blue-500" />
+          <FaUserCircle className="text-xl text-gray-800 cursor-pointer sm:text-2xl hover:text-blue-500" />
         </div>
       </header>
 
-      {/* Sidebar with AnimatePresence for mount/unmount animations */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.nav
@@ -100,15 +131,13 @@ export default function AdminNavbar() {
                 <motion.li
                   key={path}
                   whileHover={{ scale: 1.05, x: 5 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
+                  transition={{ type: "spring", stiffness: 300 }}
                 >
                   <NavLink
                     to={path}
                     className={({ isActive }) =>
-                     `block px-3 py-2 rounded-lg transition-colors duration-200 text-lg font-medium tracking-normal ${
-
-
-                        isActive ? 'bg-white/30 font-semibold' : 'hover:bg-white/20'
+                      `block px-3 py-2 rounded-lg transition-colors duration-200 text-lg font-medium tracking-normal ${
+                        isActive ? "bg-white/30 font-semibold" : "hover:bg-white/20"
                       }`
                     }
                   >
@@ -121,7 +150,6 @@ export default function AdminNavbar() {
         )}
       </AnimatePresence>
 
-      {/* Mobile Overlay with fade */}
       <AnimatePresence>
         {isMobile && isSidebarOpen && (
           <motion.div
