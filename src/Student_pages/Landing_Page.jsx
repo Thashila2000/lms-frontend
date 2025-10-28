@@ -51,18 +51,26 @@ export default function LandingPage() {
   />
 </div>
     {/* Navigation Links */}
-    <nav className="hidden space-x-8 text-base font-semibold md:flex">
-      {["Home", "About Us", "Courses", "Blog", "Contact"].map((item, i) => (
-        <a
-          key={i}
-          href={"#" + item.toLowerCase().replace(" ", "")}
-          className="relative text-gray-800 transition-colors group hover:text-blue-600"
-        >
-          {item}
-          <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-        </a>
-      ))}
-    </nav>
+   
+<nav className="hidden space-x-8 text-base font-semibold md:flex">
+  {[
+    { label: "Home", path: "/" },
+    { label: "About Us", path: "/about" },
+    { label: "Courses", path: "/online_courses" },
+    { label: "Blog", path: "/blog" },
+    { label: "Contact", path: "/contact" },
+  ].map((item, i) => (
+    <Link
+      key={i}
+      to={item.path}
+      className="relative text-gray-800 transition-colors group hover:text-blue-600"
+    >
+      {item.label}
+      <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+    </Link>
+  ))}
+</nav>
+
 
    {/* Login Buttons */}
 <div className="flex space-x-2">

@@ -97,14 +97,14 @@ function ViewSchedule() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="max-w-5xl p-8 mx-auto border shadow-2xl bg-white/80 backdrop-blur-lg border-white/40 rounded-3xl"
+          className="max-w-5xl p-8 mx-auto -mt-20 border shadow-2xl bg-white/80 backdrop-blur-lg border-white/40 rounded-3xl "
         >
           {/* Page Title */}
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="flex items-center justify-center mb-8 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+            className="flex items-center justify-center mb-20 text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
           >
             <FaClipboardList className="mr-3 text-blue-600" />
             Scheduled Tasks

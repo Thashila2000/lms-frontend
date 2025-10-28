@@ -6,7 +6,7 @@ import { FaUniversity, FaPlusCircle } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { CategoryContext } from "../Context/CategoryContext";
 
-const AddDegree = () => {
+const AddDegree = ({ onRefresh }) => {
   const { categories, fetchCategories } = useContext(CategoryContext);
   const [formData, setFormData] = useState({ name: "", categoryId: "" });
   const [focused, setFocused] = useState(false);
@@ -15,13 +15,15 @@ const AddDegree = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post("http://localhost:8080/api/degrees/add", formData);
       toast.success("🎓 Degree added successfully!", { autoClose: 3000 });
       setFormData({ name: "", categoryId: "" });
-      fetchCategories(); 
+      fetchCategories(); // optional: refresh categories
+      onRefresh?.();     // trigger parent refresh
       setFocused(false);
     } catch (err) {
       toast.error("❌ Failed to add degree.", { autoClose: 3000 });
@@ -29,19 +31,18 @@ const AddDegree = () => {
   };
 
   return (
-    <div className="flex items-start justify-center w-full px-4 pt-6 ">
-      
+    <div className="flex items-start justify-center w-full px-4 pt-6">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-xl p-6 border border-gray-200 shadow-md h-[500px] rounded-xl bg-gradient-to-br from-white/60 via-blue-50/60 to-purple-50/60"
+        className="w-full max-w-xl p-6 border border-gray-200 shadow-md h-[500px] rounded-xl bg-gradient-to-br from-indigo-50 to-blue-100"
       >
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
           <FaUniversity className="text-xl text-blue-700" />
           <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-purple-700">
-            Add New Degree
+            Add New Badge
           </h2>
         </div>
 
@@ -49,7 +50,7 @@ const AddDegree = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Degree Name */}
           <div>
-            <label className="block mb-2 font-medium text-gray-700 tex4t-sm">
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               Degree/Program name
             </label>
             <input

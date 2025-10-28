@@ -1,25 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { motion } from "framer-motion";
-import {
-  FaUserGraduate,
-  FaChartLine,
-  FaBookOpen,
-  FaClipboardList,
-} from "react-icons/fa";
-import { MdSchool } from "react-icons/md";
+import { FaUserGraduate } from "react-icons/fa";
 import StudentNavbar from "../Components/StudentNavbar";
+import SubjectCards from "../Components/SubjectCards";
+import View_Schedule from "../Components/View_Schedule";
 
 const Dashboard = () => {
   const studentName = localStorage.getItem("studentName") || "Student";
+  const indexNumber = localStorage.getItem("studentIndex");
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.15, duration: 0.5, ease: "easeOut" },
-    }),
-  };
+  useEffect(() => {
+    if (indexNumber) {
+      setLoading(true);
+      axios
+        .get(`http://localhost:8080/api/auth/subjects/${indexNumber}`)
+        .then((res) => setSubjects(res.data))
+        .catch((err) => console.error("❌ Failed to fetch subjects:", err))
+        .finally(() => setLoading(false));
+    }
+  }, [indexNumber]);
+
+  // 🔍 Deduplicate subjects by name + code
+  const deduplicatedSubjects = React.useMemo(() => {
+    const seen = new Set();
+    return subjects.filter((subject) => {
+      const key = `${subject.name}|${subject.code}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [subjects]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white/70 via-indigo-50/70 to-purple-50/70">
@@ -28,105 +41,49 @@ const Dashboard = () => {
         <StudentNavbar />
       </div>
 
-      {/* Greeting Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="px-6 pt-10 text-center"
-      >
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col items-center justify-center gap-2 mb-10 text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"
-        >
-          <FaUserGraduate className="text-5xl text-indigo-600" />
-          Welcome, {studentName}!
-        </motion.h1>
-      </motion.div>
-
-      {/* Dashboard Cards */}
-      <div className="grid max-w-6xl grid-cols-1 gap-8 px-6 mx-auto mb-20 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Card 1 - View Results */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          whileHover={{ scale: 1.05 }}
-          className="p-6 border border-gray-200 shadow-md bg-white/80 rounded-2xl backdrop-blur-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-              <FaClipboardList className="text-2xl text-white" />
+      {/* Main Grid */}
+      <div className="flex h-[calc(100vh-5rem)] overflow-hidden">
+        {/* Left Sidebar: Subject Cards */}
+        <div className="w-1/4 p-4 overflow-y-auto bg-white shadow-md">
+          <h2 className="mb-4 text-xl font-semibold text-indigo-900">Your Subjects</h2>
+          {loading ? (
+            <p className="text-gray-500">Loading subjects...</p>
+          ) : deduplicatedSubjects.length === 0 ? (
+            <p className="text-gray-500">No subjects assigned.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {deduplicatedSubjects.map((subject) => (
+                <SubjectCards key={subject.id} subject={subject} />
+              ))}
             </div>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800">View My Results</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Check your coursework, exam grades, and GPA progress.
-          </p>
-        </motion.div>
+          )}
+        </div>
 
-        {/* Card 2 - Subjects */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          custom={1}
-          whileHover={{ scale: 1.05 }}
-          className="p-6 border border-gray-200 shadow-md bg-white/80 rounded-2xl backdrop-blur-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-              <FaBookOpen className="text-2xl text-white" />
-            </div>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800">My Subjects</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Explore the list of enrolled subjects and course details.
-          </p>
-        </motion.div>
+        {/* Right Content: Greeting + Schedule */}
+        <div className="flex-1 p-6 overflow-y-auto">
+          {/* Greeting Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mb-10 text-center"
+          >
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex flex-col items-center justify-center gap-2 text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600"
+            >
+              <FaUserGraduate className="text-3xl text-indigo-600" />
+              Welcome, {studentName}!
+            </motion.h1>
+          </motion.div>
 
-        {/* Card 3 - GPA Performance */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          custom={2}
-          whileHover={{ scale: 1.05 }}
-          className="p-6 border border-gray-200 shadow-md bg-white/80 rounded-2xl backdrop-blur-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-              <FaChartLine className="text-2xl text-white" />
-            </div>
+          {/* Schedule / Task View */}
+          <div className="mt-[-20px]">
+            <View_Schedule />
           </div>
-          <h3 className="text-lg font-semibold text-gray-800">GPA Performance</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            Track your GPA trends and visualize performance insights.
-          </p>
-        </motion.div>
-
-        {/* Card 4 - Academic Info */}
-        <motion.div
-          variants={cardVariants}
-          initial="hidden"
-          animate="visible"
-          custom={3}
-          whileHover={{ scale: 1.05 }}
-          className="p-6 border border-gray-200 shadow-md bg-white/80 rounded-2xl backdrop-blur-lg"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-              <MdSchool className="text-2xl text-white" />
-            </div>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-800">Academic Info</h3>
-          <p className="mt-2 text-sm text-gray-600">
-            View details about your degree program and academic status.
-          </p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

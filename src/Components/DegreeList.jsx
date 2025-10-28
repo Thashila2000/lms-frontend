@@ -3,12 +3,22 @@ import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const DegreeList = ({ degrees = [], onEdit, onDelete }) => {
+const DegreeList = ({ degrees = [], onEdit, onDelete, onRefresh }) => {
   const navigate = useNavigate();
 
   const handleViewBadges = (name) => {
     const slug = name.toLowerCase().replace(/\s+/g, "-");
     navigate(`/manage_badge/${slug}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this degree?")) return;
+    try {
+      await onDelete(id);    
+      onRefresh?.();          
+    } catch (err) {
+      console.error("❌ Failed to delete degree:", err);
+    }
   };
 
   return (
@@ -19,7 +29,7 @@ const DegreeList = ({ degrees = [], onEdit, onDelete }) => {
       className="w-full max-w-5xl p-6 mx-auto mt-10 border border-gray-200 shadow-lg bg-white/70 backdrop-blur-lg rounded-2xl"
     >
       <h3 className="mb-6 text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600">
-        🎓 Manage Degrees
+        🎓 Manage Badge
       </h3>
 
       {Array.isArray(degrees) && degrees.length > 0 ? (
@@ -58,7 +68,7 @@ const DegreeList = ({ degrees = [], onEdit, onDelete }) => {
 
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => onDelete(deg.id)}
+                  onClick={() => handleDelete(deg.id)}
                   className="p-2 text-red-600 transition duration-200 bg-red-100 rounded-full shadow-sm hover:bg-red-500 hover:text-white"
                   title="Delete Degree"
                 >

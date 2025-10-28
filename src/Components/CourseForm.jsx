@@ -86,7 +86,7 @@ export default function CourseForm({ existingCourse, onSave }) {
         setToast("✅ Course added successfully!");
       }
 
-      // ✅ Clear form after both add and update
+      // Clear form after both add and update
       setForm({
         title: "",
         description: "",
@@ -224,7 +224,7 @@ export default function CourseForm({ existingCourse, onSave }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="flex items-center justify-center w-full px-6 py-3 text-sm font-semibold text-white transition-all rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 sm:w-1/2"
+            className="flex items-center justify-center w-full px-6 py-3 text-sm font-semibold text-white transition-all rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:to-blue-600 sm:w-1/2"
           >
             <FaCheckCircle className="mr-2" />
             {existingCourse ? "Update Course" : "Add Course"}

@@ -73,7 +73,7 @@ const AddCategory = ({ onRefresh, editingCategory, setEditingCategory }) => {
 
   return (
     <div className="flex items-start justify-center w-full px-4 pt-6">
-      <div className="w-full max-w-xl h-[800px] p-6 border border-gray-200 shadow-md rounded-xl bg-gradient-to-br from-white/60 via-blue-50/60 to-purple-50/60">
+      <div className="w-full max-w-xl h-[800px] p-6 border border-gray-200 shadow-md rounded-xl bg-gradient-to-br from-indigo-50 to-blue-100">
         {/* Header */}
         <div className="flex items-center gap-2 mb-6">
           <FaLayerGroup className="text-2xl text-blue-700" />

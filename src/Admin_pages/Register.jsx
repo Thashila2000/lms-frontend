@@ -128,7 +128,7 @@ const Register = () => {
                 name="index"
                 value={formData.index}
                 onChange={handleChange}
-                placeholder="e.g. 2023ICT123"
+                placeholder="e.g. Kadse232-xxx"
                 className="w-full px-3 py-1 text-sm border-none outline-none"
                 required
               />
@@ -168,7 +168,7 @@ const Register = () => {
                 name="degreeName"
                 value={formData.degreeName}
                 onChange={handleChange}
-                placeholder="e.g. BSc in Computer Science"
+                placeholder="e.g. DSE23.2"
                 className="w-full px-3 py-1 text-sm border-none outline-none"
                 required
               />
