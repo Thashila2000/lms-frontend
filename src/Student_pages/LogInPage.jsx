@@ -21,16 +21,16 @@ const LoginPage = () => {
     try {
       const res = await axios.post("http://localhost:8080/api/auth/login", payload);
 
-      if (res.data.message === "Login successful.") {
+      if (res.status === 200 && res.data.indexNumber) {
         localStorage.setItem("studentIndex", res.data.indexNumber);
-        localStorage.setItem("studentName", res.data.name);
-        toast.success("Login successful!");
+        localStorage.setItem("studentName", res.data.fullName);
+        toast.success("✅ Login successful!", { autoClose: 3000 });
         setTimeout(() => navigate("/dashboard"), 1000);
       } else {
-        toast.error(res.data.message || "Login failed.");
+        toast.error("❌ Login failed. Please check your credentials.", { autoClose: 3000 });
       }
     } catch (err) {
-      toast.error("Something went wrong. Try again later.");
+      toast.error("❌ Something went wrong. Try again later.", { autoClose: 3000 });
     }
   };
 
@@ -57,7 +57,6 @@ const LoginPage = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="relative z-10 w-full max-w-md p-8 bg-white shadow-2xl rounded-xl backdrop-blur-md"
       >
-        {/* Header */}
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -67,7 +66,6 @@ const LoginPage = () => {
           LMS Login
         </motion.h2>
 
-        {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0, y: 20 }}
@@ -75,7 +73,6 @@ const LoginPage = () => {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="space-y-5"
         >
-          {/* Index Number */}
           <div>
             <label htmlFor="index" className="block mb-1 text-sm font-medium text-gray-700">
               Index Number
@@ -92,7 +89,6 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label htmlFor="password" className="block mb-1 text-sm font-medium text-gray-700">
               Password
@@ -109,7 +105,6 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
@@ -120,7 +115,6 @@ const LoginPage = () => {
           </motion.button>
         </motion.form>
 
-        {/* Contact Note */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -136,7 +130,6 @@ const LoginPage = () => {
         </motion.div>
       </motion.div>
 
-      {/* Toast Container */}
       <ToastContainer
         position="bottom-right"
         autoClose={3000}

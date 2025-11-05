@@ -18,12 +18,34 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
   }, [refreshTrigger]);
 
   const fetchTasks = async () => {
+    const indexNumber = localStorage.getItem("studentIndex");
+    if (!indexNumber) {
+      console.warn("Missing studentIndex in localStorage");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:8080/api/tasks");
-      const data = await response.json();
-      setTasks(data);
+      const degreeRes = await fetch(`http://localhost:8080/api/auth/degree?indexNumber=${indexNumber}`);
+      const degreeId = await degreeRes.json();
+
+      if (!degreeId || typeof degreeId !== "number") {
+        console.warn("Invalid degreeId:", degreeId);
+        return;
+      }
+
+      const taskRes = await fetch(`http://localhost:8080/api/tasks/schedule?degreeId=${degreeId}`);
+      const taskData = await taskRes.json();
+
+      if (Array.isArray(taskData)) {
+        const sorted = [...taskData].sort((a, b) => new Date(a.computedStart) - new Date(b.computedStart));
+        setTasks(sorted);
+      } else {
+        console.warn("Expected array but got:", taskData);
+        setTasks([]);
+      }
     } catch (error) {
-      console.error("Error fetching tasks:", error);
+      console.error("Error fetching schedule:", error);
+      setTasks([]);
     }
   };
 
@@ -48,16 +70,10 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
         method: "DELETE",
       });
       if (response.ok) {
-        setTasks(tasks.filter((t) => t.id !== id));
+        setTasks((prev) => prev.filter((t) => t.id !== id));
         if (editingTask?.id === id) {
           setEditingTask(null);
-          setEditData({
-            name: "",
-            duration: "",
-            priority: 1,
-            startTime: "",
-            dependencies: [],
-          });
+          resetEditData();
         }
       } else {
         alert("Failed to delete task.");
@@ -88,23 +104,25 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
       });
 
       if (response.ok) {
-        const updated = await fetch("http://localhost:8080/api/tasks");
-        const refreshed = await updated.json();
-        setTasks(refreshed);
+        fetchTasks(); // Refresh after update
         setEditingTask(null);
-        setEditData({
-          name: "",
-          duration: "",
-          priority: 1,
-          startTime: "",
-          dependencies: [],
-        });
+        resetEditData();
       } else {
         alert("Failed to update task.");
       }
     } catch (error) {
       console.error("Error updating task:", error);
     }
+  };
+
+  const resetEditData = () => {
+    setEditData({
+      name: "",
+      duration: "",
+      priority: 1,
+      startTime: "",
+      dependencies: [],
+    });
   };
 
   return (
@@ -119,9 +137,7 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
       </h3>
 
       <div className="space-y-3 overflow-y-auto max-h-[450px] scrollbar-thin scrollbar-thumb-indigo-400 scrollbar-track-indigo-100">
-        {tasks.length === 0 ? (
-          <p className="py-10 text-center text-gray-500">No tasks found.</p>
-        ) : (
+        {tasks.length > 0 ? (
           tasks.map((task) => (
             <motion.div
               key={task.id}
@@ -164,6 +180,8 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
               </div>
             </motion.div>
           ))
+        ) : (
+          <p className="py-10 text-center text-gray-500">No tasks found.</p>
         )}
       </div>
 
@@ -187,14 +205,18 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
           <input
             type="number"
             value={editData.duration}
-            onChange={(e) => setEditData({ ...editData, duration: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setEditData({ ...editData, duration: parseInt(e.target.value) || 0 })
+            }
             placeholder="Duration (hours)"
             className="w-full px-3 py-2 mb-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
           />
           <input
             type="number"
             value={editData.priority}
-            onChange={(e) => setEditData({ ...editData, priority: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setEditData({ ...editData, priority: parseInt(e.target.value) || 1 })
+            }
             placeholder="Priority"
             className="w-full px-3 py-2 mb-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
           />
@@ -209,7 +231,7 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
             whileTap={{ scale: 0.95 }}
             onClick={handleUpdate}
             className="w-full px-4 py-2 text-sm font-semibold text-white transition-all bg-indigo-600 rounded-lg hover:bg-indigo-700"
-          >
+           >
             💾 Save Changes
           </motion.button>
         </motion.div>

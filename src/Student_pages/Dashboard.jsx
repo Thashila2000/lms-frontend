@@ -23,7 +23,7 @@ const Dashboard = () => {
     }
   }, [indexNumber]);
 
-  // 🔍 Deduplicate subjects by name + code
+  //  Deduplicate subjects by name + code
   const deduplicatedSubjects = React.useMemo(() => {
     const seen = new Set();
     return subjects.filter((subject) => {
@@ -81,7 +81,7 @@ const Dashboard = () => {
 
           {/* Schedule / Task View */}
           <div className="mt-[-20px]">
-            <View_Schedule />
+           <View_Schedule indexNumber={indexNumber} />
           </div>
         </div>
       </div>

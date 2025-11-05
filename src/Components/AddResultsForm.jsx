@@ -63,7 +63,7 @@ const AddResultForm = ({ onSubmit }) => {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-full max-w-3xl p-8 mx-auto mt-10 overflow-hidden border shadow-2xl rounded-2xl bg-white/80 backdrop-blur-xl border-gradient-to-r from-blue-300 via-purple-300 to-indigo-300"
+        className="relative w-full max-w-3xl p-8 mx-auto mt-10 overflow-hidden border shadow-2xl rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-100"
       >
         {/* Floating Glow Effect */}
         <motion.div
@@ -79,89 +79,98 @@ const AddResultForm = ({ onSubmit }) => {
           </span>
         </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Index Number */}
-          <motion.div whileHover={{ scale: 1.02 }} className="flex items-center gap-3">
-            <FaUserGraduate className="text-2xl text-indigo-600" />
-            <input
-              type="text"
-              name="indexNumber"
-              value={formData.indexNumber}
-              onChange={handleChange}
-              placeholder="Index Number"
-              className="w-full px-4 py-3 text-gray-800 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              required
-            />
-          </motion.div>
+       <form onSubmit={handleSubmit} className="space-y-4">
+  {/* Index Number */}
+  <div>
+    <label className="flex items-center gap-2 font-medium text-gray-700">
+      <FaUserGraduate className="text-indigo-600" /> Index Number
+    </label>
+    <input
+      type="text"
+      name="indexNumber"
+      value={formData.indexNumber}
+      onChange={handleChange}
+      placeholder="Enter student index number"
+      className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-400"
+      required
+    />
+  </div>
 
-          {/* Subject Name */}
-          <motion.div whileHover={{ scale: 1.02 }} className="flex items-center gap-3">
-            <FaBook className="text-2xl text-purple-600" />
-            <input
-              type="text"
-              name="subjectName"
-              value={formData.subjectName}
-              onChange={handleChange}
-              placeholder="Subject Name"
-              className="w-full px-4 py-3 text-gray-800 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
-            />
-          </motion.div>
+  {/* Subject Name */}
+  <div>
+    <label className="flex items-center gap-2 font-medium text-gray-700">
+      <FaBook className="text-purple-600" /> Subject Name
+    </label>
+    <input
+      type="text"
+      name="subjectName"
+      value={formData.subjectName}
+      onChange={handleChange}
+      placeholder="Enter subject name"
+      className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-purple-400"
+      required
+    />
+  </div>
 
-          {/* Coursework Grade */}
-          <motion.div whileHover={{ scale: 1.02 }} className="flex items-center gap-3">
-            <FaClipboardList className="text-2xl text-blue-600" />
-            <input
-              type="text"
-              name="courseworkGrade"
-              value={formData.courseworkGrade}
-              onChange={handleChange}
-              placeholder="Coursework Grade (e.g. A, B, C)"
-              className="w-full px-4 py-3 text-gray-800 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </motion.div>
+  {/* Coursework Grade */}
+  <div>
+    <label className="flex items-center gap-2 font-medium text-gray-700">
+      <FaClipboardList className="text-blue-600" /> Coursework Grade
+    </label>
+    <input
+      type="text"
+      name="courseworkGrade"
+      value={formData.courseworkGrade}
+      onChange={handleChange}
+      placeholder="e.g. A, B, C"
+      className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
+      required
+    />
+  </div>
 
-          {/* Exam Grade */}
-          <motion.div whileHover={{ scale: 1.02 }} className="flex items-center gap-3">
-            <FaClipboardList className="text-2xl text-pink-600" />
-            <input
-              type="text"
-              name="examGrade"
-              value={formData.examGrade}
-              onChange={handleChange}
-              placeholder="Exam Grade (e.g. A, B, C)"
-              className="w-full px-4 py-3 text-gray-800 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400"
-              required
-            />
-          </motion.div>
+  {/* Exam Grade */}
+  <div>
+    <label className="flex items-center gap-2 font-medium text-gray-700">
+      <FaClipboardList className="text-pink-600" /> Exam Grade
+    </label>
+    <input
+      type="text"
+      name="examGrade"
+      value={formData.examGrade}
+      onChange={handleChange}
+      placeholder="e.g. A, B, C"
+      className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-pink-400"
+      required
+    />
+  </div>
 
-          {/* GPA */}
-          <motion.div whileHover={{ scale: 1.02 }} className="flex items-center gap-3">
-            <FaStar className="text-2xl text-green-600" />
-            <input
-              type="number"
-              step="0.01"
-              name="gpa"
-              value={formData.gpa}
-              onChange={handleChange}
-              placeholder="GPA"
-              className="w-full px-4 py-3 text-gray-800 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
-          </motion.div>
+  {/* GPA */}
+  <div>
+    <label className="flex items-center gap-2 font-medium text-gray-700">
+      <FaStar className="text-green-600" /> GPA
+    </label>
+    <input
+      type="number"
+      step="0.01"
+      name="gpa"
+      value={formData.gpa}
+      onChange={handleChange}
+      placeholder="Enter GPA (e.g. 3.75)"
+      className="w-full px-3 py-2 mt-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-green-400"
+      required
+    />
+  </div>
 
-          {/* Submit Button */}
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 15px rgba(99,102,241,0.4)" }}
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            className="flex items-center justify-center w-full gap-2 px-5 py-3 text-lg font-semibold text-white transition-all duration-300 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:to-purple-700"
-          >
-            <FaSave />
-            Save Result
-          </motion.button>
-        </form>
+  {/* Submit Button */}
+  <motion.button
+    whileTap={{ scale: 0.95 }}
+    type="submit"
+    className="flex items-center justify-center w-full gap-2 px-4 py-2 text-white transition-all rounded-lg shadow-md bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:shadow-xl"
+  >
+    <FaSave />
+    Save Result
+  </motion.button>
+</form>
       </motion.div>
 
       {/* Toast Container outside layout box for proper positioning */}

@@ -39,7 +39,7 @@ const ManageDegreesInner = () => {
     }
   };
 
-  // ✅ Move these OUTSIDE fetchAll
+  // Move these OUTSIDE fetchAll
   const handleEditCategory = (category) => {
     setEditingCategory(category);
   };
