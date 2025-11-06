@@ -19,13 +19,18 @@ export default function StudentNavbar() {
     { label: 'Career Center', path: '/student_services/career' },
   ];
 
+  const navLinkClass = ({ isActive }) =>
+    isActive
+      ? 'text-purple-600 font-semibold underline'
+      : 'hover:text-purple-600';
+
   return (
     <header className="fixed top-0 left-0 z-50 w-full h-16 px-3 bg-white shadow-md sm:px-6 md:px-8">
       <div className="flex items-center justify-between h-full">
         {/* Left: Logo */}
         <div className="flex items-center space-x-3 sm:space-x-4">
           <img
-            src="https://www.harlow-college.ac.uk/images/harlow_college/study-options/course-areas/bright-futures/redesign/bright-futures-logo-large-cropped.png" 
+            src="https://www.harlow-college.ac.uk/images/harlow_college/study-options/course-areas/bright-futures/redesign/bright-futures-logo-large-cropped.png"
             alt="Student Portal Logo"
             className="object-contain w-auto h-10 sm:h-14"
           />
@@ -33,15 +38,14 @@ export default function StudentNavbar() {
 
         {/* Center: Navigation */}
         <nav className="items-center hidden space-x-6 font-medium text-gray-800 md:flex">
-          
-          <NavLink to="/student_courses" className="hover:text-blue-600">Courses</NavLink>
-          
+          <NavLink to="/dashboard" className={navLinkClass}>Home</NavLink>
+          <NavLink to="/quizzes" className={navLinkClass}>Quizzes</NavLink>
 
           {/* Services Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowServices(prev => !prev)}
-              className="flex items-center space-x-1 hover:text-blue-600"
+              className="flex items-center space-x-1 hover:text-purple-600"
             >
               <span>Services</span>
               <FaChevronDown className="mt-1 text-xs" />
@@ -58,7 +62,11 @@ export default function StudentNavbar() {
                     <li key={path}>
                       <NavLink
                         to={path}
-                        className="block px-4 py-2 text-sm hover:bg-green-100"
+                        className={({ isActive }) =>
+                          isActive
+                            ? 'block px-4 py-2 text-sm bg-green-100 font-semibold text-green-700'
+                            : 'block px-4 py-2 text-sm hover:bg-green-100'
+                        }
                         onClick={() => setShowServices(false)}
                       >
                         {label}
@@ -70,11 +78,9 @@ export default function StudentNavbar() {
             </AnimatePresence>
           </div>
 
-          <NavLink to="/student_news" className="hover:text-blue-600">News</NavLink>
-           <NavLink to="/results" className="hover:text-blue-600">Results</NavLink>
-          <NavLink to="/student_help" className="hover:text-blue-600">Help</NavLink>
-          
-          
+          <NavLink to="/student_news" className={navLinkClass}>News</NavLink>
+          <NavLink to="/results" className={navLinkClass}>Results</NavLink>
+          <NavLink to="/student_help" className={navLinkClass}>Help</NavLink>
         </nav>
 
         {/* Right: Search + Icons */}
@@ -84,8 +90,8 @@ export default function StudentNavbar() {
             placeholder="Search..."
             className="w-32 px-3 py-1 text-gray-800 transition-all border border-gray-300 rounded-full sm:w-48 md:w-64 sm:py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
-          <FaBell className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-blue-600" />
-          <FaUserCircle className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-blue-600" />
+          <FaBell className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-purple-600" />
+          <FaUserCircle className="text-xl text-gray-800 transition-colors cursor-pointer sm:text-2xl hover:text-purple-600" />
         </div>
       </div>
     </header>

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaTrashAlt, FaEdit, FaClock, FaTasks } from "react-icons/fa";
 
-function ViewScheduleList({ onEdit, refreshTrigger }) {
+function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
   const [tasks, setTasks] = useState([]);
+  const [degreeId, setDegreeId] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
   const [editData, setEditData] = useState({
     name: "",
@@ -13,41 +14,51 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
     dependencies: [],
   });
 
-  useEffect(() => {
-    fetchTasks();
-  }, [refreshTrigger]);
+  // Resolve degreeId from badgeSlug
+ useEffect(() => {
+  if (!badgeSlug) return;
 
-  const fetchTasks = async () => {
-    const indexNumber = localStorage.getItem("studentIndex");
-    if (!indexNumber) {
-      console.warn("Missing studentIndex in localStorage");
-      return;
-    }
-
+  const fetchDegreeId = async () => {
     try {
-      const degreeRes = await fetch(`http://localhost:8080/api/auth/degree?indexNumber=${indexNumber}`);
-      const degreeId = await degreeRes.json();
+      const res = await fetch(`http://localhost:8080/api/degrees/byName/${badgeSlug}`);
+      const degree = await res.json();
 
-      if (!degreeId || typeof degreeId !== "number") {
-        console.warn("Invalid degreeId:", degreeId);
-        return;
-      }
-
-      const taskRes = await fetch(`http://localhost:8080/api/tasks/schedule?degreeId=${degreeId}`);
-      const taskData = await taskRes.json();
-
-      if (Array.isArray(taskData)) {
-        const sorted = [...taskData].sort((a, b) => new Date(a.computedStart) - new Date(b.computedStart));
-        setTasks(sorted);
+      if (degree?.id) {
+        setDegreeId(degree.id); // Extract the id from the object
+        console.log("Resolved degreeId:", degree.id);
       } else {
-        console.warn("Expected array but got:", taskData);
-        setTasks([]);
+        console.warn("Invalid degree object from slug:", degree);
       }
     } catch (error) {
-      console.error("Error fetching schedule:", error);
-      setTasks([]);
+      console.error("Error fetching degreeId:", error);
+      console.log("Received badgeSlug:", badgeSlug);
     }
   };
+
+  fetchDegreeId();
+}, [badgeSlug]);
+
+  // Fetch tasks for resolved degreeId
+  useEffect(() => {
+    if (!degreeId) return;
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/tasks/schedule?degreeId=${degreeId}`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const sorted = [...data].sort((a, b) => new Date(a.computedStart) - new Date(b.computedStart));
+          setTasks(sorted);
+        } else {
+          console.warn("Expected array but got:", data);
+          setTasks([]);
+        }
+      } catch (error) {
+        console.error("Error fetching schedule:", error);
+        setTasks([]);
+      }
+    };
+    fetchTasks();
+  }, [degreeId, refreshTrigger]);
 
   const formatTime = (iso) => {
     if (!iso) return "Unscheduled";
@@ -104,7 +115,10 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
       });
 
       if (response.ok) {
-        fetchTasks(); // Refresh after update
+        const updated = await response.json();
+        setTasks((prev) =>
+          prev.map((t) => (t.id === updated.id ? updated : t))
+        );
         setEditingTask(null);
         resetEditData();
       } else {
@@ -224,14 +238,14 @@ function ViewScheduleList({ onEdit, refreshTrigger }) {
             type="datetime-local"
             value={editData.startTime}
             onChange={(e) => setEditData({ ...editData, startTime: e.target.value })}
-            className="w-full px-3 py-2 mb-3 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            className="w-full px-3 py-2 mb-3 text-sm border rounded-lg focus:ring-indigo-400 focus:outline-none"
           />
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleUpdate}
             className="w-full px-4 py-2 text-sm font-semibold text-white transition-all bg-indigo-600 rounded-lg hover:bg-indigo-700"
-           >
+          >
             💾 Save Changes
           </motion.button>
         </motion.div>

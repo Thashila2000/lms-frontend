@@ -20,9 +20,7 @@ import BadgeManage from './Admin_pages/BadgeManage';
 import StudentResultDisplay from './Student_pages/StudentResultDisplay';
 import OnlineCourseDisplay from './Landing_page_pages/OnlineCourseDisplay';
 import ManageDegreesWrapper from './Admin_pages/ManageDegreesWrapper';
-
-
-
+import ViewQuizPage from './Student_pages/ViewQuiz';
 
 
 
@@ -31,6 +29,7 @@ function App() {
     <div>
     <Router>
       <Routes>
+        
         //Admin pages
         <Route path="/admin_home" element={<AdminHomePage />} />
         <Route path="/students" element={<Students />} />
@@ -57,6 +56,7 @@ function App() {
             <Route path="/login" element={<LogInPage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/results" element={<StudentResultDisplay />} />
+            <Route path="/quizzes" element={<ViewQuizPage />} />
 
          //Landing Page's pages   
 

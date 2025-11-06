@@ -5,3 +5,7 @@
 .btn {
   @apply flex items-center px-4 py-2 font-medium text-white transition rounded;
 }
+
+html {
+  scroll-behavior: smooth;
+}

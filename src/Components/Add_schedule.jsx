@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import AdminNavbar from "./Admin_navbar";
 import ViewScheduleList from "./AdminTaskViewList";
-import Toast from "./Toast"; // ✅ your custom Toast
+import Toast from "./Toast"; 
 
 function AddSchedule() {
   const { slug } = useParams();
@@ -27,7 +27,7 @@ function AddSchedule() {
   const [allTasks, setAllTasks] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // ✅ Toast state
+  // Toast state
   const [toast, setToast] = useState({ message: "", type: "" });
 
   const showToast = (message, type = "info") => {
@@ -35,7 +35,7 @@ function AddSchedule() {
     setTimeout(() => setToast({ message: "", type: "" }), 3000);
   };
 
-  // 🎓 Load Degree
+  // Load Degree
   useEffect(() => {
     if (!slug) return;
     const fetchDegree = async () => {
@@ -51,21 +51,26 @@ function AddSchedule() {
     fetchDegree();
   }, [slug]);
 
-  // 🧾 Load Tasks
-  useEffect(() => {
-    if (!degreeId) return;
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/tasks?degreeId=${degreeId}`);
-        const data = await res.json();
-        setAllTasks(data);
-      } catch {
-        showToast("❌ Failed to load tasks.", "error");
-      }
-    };
-    fetchTasks();
-  }, [degreeId, refreshTrigger]);
+ useEffect(() => {
+  if (!degreeId) return;
 
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/tasks?degreeId=${degreeId}`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      setAllTasks(data);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  fetchTasks();
+}, [degreeId, refreshTrigger]);
+ 
   const hasDependencies = task.dependencies.length > 0;
 
   const availableTasks = useMemo(() => {
@@ -78,7 +83,7 @@ function AddSchedule() {
     });
   }, [allTasks]);
 
-  // ⏰ Auto adjust startTime based on dependencies
+  // Auto adjust startTime based on dependencies
   useEffect(() => {
     if (hasDependencies) {
       const selectedDeps = allTasks.filter(
@@ -97,7 +102,7 @@ function AddSchedule() {
     }
   }, [task.dependencies, allTasks]);
 
-  // 🧩 Submit Task
+  //  Submit Task
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -140,7 +145,7 @@ function AddSchedule() {
     }
   };
 
-  // 🔁 Toggle dependencies
+  // Toggle dependencies
   const handleDependencyToggle = (id) => {
     const updated = task.dependencies.includes(id)
       ? task.dependencies.filter((depId) => depId !== id)
@@ -148,7 +153,7 @@ function AddSchedule() {
     setTask({ ...task, dependencies: updated });
   };
 
-  // 🗑️ Delete Task
+  // Delete Task
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
 
@@ -184,7 +189,7 @@ function AddSchedule() {
     });
   };
 
-  // ✅ Render UI
+  // Render UI
   return (
     <>
       <AdminNavbar />
@@ -329,17 +334,22 @@ function AddSchedule() {
         </motion.div>
 
         {/* Right Side List */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex-1"
-        >
-          <ViewScheduleList refreshTrigger={refreshTrigger} />
-        </motion.div>
+       <motion.div
+  initial={{ opacity: 0, x: 50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.6 }}
+  className="flex-1"
+>
+  <ViewScheduleList
+    badgeSlug={slug} // Pass the badgeSlug here
+    refreshTrigger={refreshTrigger}
+    onEdit={(task) => setTask(task)} // Optional: sync editing
+  />
+</motion.div>
+
       </div>
 
-      {/* ✅ Custom Toast */}
+      {/*  Custom Toast */}
       {toast.message && (
         <Toast
           message={toast.message}
