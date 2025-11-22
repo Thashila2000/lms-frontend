@@ -7,9 +7,6 @@ import {
   FaClipboardList,
   FaClock,
   FaCalendarAlt,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaHourglassHalf,
 } from "react-icons/fa";
 
 function ViewSchedule() {
@@ -17,6 +14,48 @@ function ViewSchedule() {
   const [tasks, setTasks] = useState([]);
   const [tick, setTick] = useState(0);
   const [shownTasks, setShownTasks] = useState([]);
+
+  const cleanDate = (iso) => {
+    if (!iso) return null;
+    const safe = iso.replace(" ", "T").split(".")[0];
+    return new Date(safe);
+  };
+
+  const formatTime = (iso) => {
+    const date = cleanDate(iso);
+    return date
+      ? date.toLocaleString("en-US", {
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          day: "numeric",
+          month: "short",
+        })
+      : "unscheduled";
+  };
+
+  const isTaskSubmittable = (startIso) => {
+    const now = new Date();
+    const start = cleanDate(startIso);
+    return start && now >= start;
+  };
+
+  const isTaskExpired = (endIso) => {
+    const now = new Date();
+    const end = cleanDate(endIso);
+    return end && now > end;
+  };
+
+  const getStatusLabel = (task) => {
+    const now = new Date();
+    const start = cleanDate(task.computedStart);
+    const end = cleanDate(task.computedEnd);
+
+    if (!start || !end) return { label: "Unscheduled", style: "bg-gray-200 text-gray-600" };
+    if (now < start) return { label: "Upcoming", style: "bg-yellow-100 text-yellow-700" };
+    if (now >= start && now <= end) return { label: "Active", style: "bg-green-100 text-green-700" };
+    return { label: "Expired", style: "bg-gray-300 text-gray-600" };
+  };
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -36,7 +75,7 @@ function ViewSchedule() {
 
         if (Array.isArray(taskData)) {
           const sorted = [...taskData].sort(
-            (a, b) => new Date(a.computedStart) - new Date(b.computedStart)
+            (a, b) => cleanDate(a.computedStart) - cleanDate(b.computedStart)
           );
           setTasks(sorted);
         } else {
@@ -60,9 +99,9 @@ function ViewSchedule() {
   useEffect(() => {
     const now = new Date();
     tasks.forEach((task) => {
-      const start = new Date(task.computedStart);
-      const end = new Date(task.computedEnd);
-      const isActive = now >= start && now < end;
+      const start = cleanDate(task.computedStart);
+      const end = cleanDate(task.computedEnd);
+      const isActive = start && end && now >= start && now < end;
       const notShown = !shownTasks.includes(task.id);
 
       if (isActive && notShown) {
@@ -73,41 +112,6 @@ function ViewSchedule() {
       }
     });
   }, [tick, tasks, shownTasks]);
-
-  const formatTime = (iso) => {
-    if (!iso) return "unscheduled";
-    const date = new Date(iso);
-    return date.toLocaleString("en-US", {
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "numeric",
-      month: "short",
-    });
-  };
-
-  const isTaskSubmittable = (startIso) => {
-    if (!startIso) return false;
-    const now = new Date();
-    const start = new Date(startIso);
-    return now >= start;
-  };
-
-  const isTaskExpired = (endIso) => {
-    if (!endIso) return false;
-    const now = new Date();
-    const end = new Date(endIso);
-    return now > end;
-  };
-
-  const getStatusLabel = (task) => {
-    const isExpired = isTaskExpired(task.computedEnd);
-    const canSubmit = isTaskSubmittable(task.computedStart);
-
-    if (isExpired) return { label: "Expired", style: "bg-gray-300 text-gray-600" };
-    if (canSubmit) return { label: "Active", style: "bg-green-100 text-green-700" };
-    return { label: "Upcoming", style: "bg-yellow-100 text-yellow-700" };
-  };
 
   const handleSubmit = (task) => {
     console.log(`Submitted task: ${task.name}`, task);

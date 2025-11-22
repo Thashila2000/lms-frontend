@@ -40,6 +40,7 @@ export default function StudentNavbar() {
         <nav className="items-center hidden space-x-6 font-medium text-gray-800 md:flex">
           <NavLink to="/dashboard" className={navLinkClass}>Home</NavLink>
           <NavLink to="/quizzes" className={navLinkClass}>Quizzes</NavLink>
+             <NavLink to="/Online_quizzes" className={navLinkClass}>Online Quizzes</NavLink>
 
           {/* Services Dropdown */}
           <div className="relative">

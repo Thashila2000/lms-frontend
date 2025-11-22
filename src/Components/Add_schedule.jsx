@@ -103,47 +103,50 @@ function AddSchedule() {
   }, [task.dependencies, allTasks]);
 
   //  Submit Task
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!task.name || !task.duration || !degreeId) {
-      showToast("⚠️ Please fill in all required fields.", "error");
-      return;
-    }
+  if (!task.name || !task.duration || !degreeId) {
+    showToast("⚠️ Please fill in all required fields.", "error");
+    return;
+  }
 
-    const payload = {
-      name: task.name,
-      duration: parseInt(task.duration),
-      priority: parseInt(task.priority),
-      startTime: task.startTime,
-      dependencies: task.dependencies,
-      degree: { id: degreeId },
-    };
-
-    try {
-      const response = await fetch("http://localhost:8080/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        showToast("✅ Task added successfully!", "success");
-        setTask({
-          name: "",
-          duration: "",
-          priority: 1,
-          startTime: "",
-          dependencies: [],
-        });
-        setRefreshTrigger((prev) => prev + 1);
-      } else {
-        showToast("⚠️ Failed to add task.", "error");
-      }
-    } catch {
-      showToast("❌ Error connecting to backend.", "error");
-    }
+  const payload = {
+    name: task.name,
+    duration: parseInt(task.duration),
+    priority: parseInt(task.priority),
+    startTime: task.startTime,
+    dependencies: task.dependencies,
+    degree: { id: degreeId }, // or use degreeId directly if backend expects it
   };
+
+  console.log("Submitting task payload:", payload); // 🧪 debug
+
+  try {
+    const response = await fetch("http://localhost:8080/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      showToast("✅ Task added successfully!", "success");
+      setTask({
+        name: "",
+        duration: "",
+        priority: 1,
+        startTime: "",
+        dependencies: [],
+      });
+      setRefreshTrigger((prev) => prev + 1);
+    } else {
+      showToast("⚠️ Failed to add task.", "error");
+    }
+  } catch (err) {
+    console.error("Error submitting task:", err);
+    showToast("❌ Error connecting to backend.", "error");
+  }
+};
 
   // Toggle dependencies
   const handleDependencyToggle = (id) => {

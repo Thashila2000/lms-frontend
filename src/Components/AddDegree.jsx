@@ -9,24 +9,37 @@ import { CategoryContext } from "../Context/CategoryContext";
 const AddDegree = ({ onRefresh }) => {
   const { categories, fetchCategories } = useContext(CategoryContext);
   const [formData, setFormData] = useState({ name: "", categoryId: "" });
-  const [focused, setFocused] = useState(false);
 
   const handleChange = (e) => {
+    console.log("Changed:", e.target.name, e.target.value); // 🧪 debug
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.categoryId) {
+      toast.error("⚠️ Please fill in all fields before submitting.", { autoClose: 3000 });
+      return;
+    }
+
+    const payload = {
+      name: formData.name,
+      categoryId: Number(formData.categoryId),
+    };
+
+    console.log("Selected category:", formData.categoryId);
+    console.log("Submitting degree payload:", payload);
+
     try {
-      await axios.post("http://localhost:8080/api/degrees/add", formData);
+      await axios.post("http://localhost:8080/api/degrees/add", payload);
       toast.success("🎓 Degree added successfully!", { autoClose: 3000 });
       setFormData({ name: "", categoryId: "" });
-      fetchCategories(); // optional: refresh categories
-      onRefresh?.();     // trigger parent refresh
-      setFocused(false);
+      fetchCategories();
+      onRefresh?.();
     } catch (err) {
-      toast.error("❌ Failed to add degree.", { autoClose: 3000 });
+      console.error("Error adding degree:", err.response?.data || err.message);
+      toast.error("❌ Failed to add degree. Check console for details.", { autoClose: 3000 });
     }
   };
 
@@ -73,11 +86,10 @@ const AddDegree = ({ onRefresh }) => {
               name="categoryId"
               value={formData.categoryId}
               onChange={handleChange}
-              onFocus={() => setFocused(true)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md mb-7 focus:ring-2 focus:ring-purple-500"
               required
             >
-              {!focused && <option value="">Choose Category</option>}
+              <option value="">Choose Category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.name}

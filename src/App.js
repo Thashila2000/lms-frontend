@@ -22,6 +22,7 @@ import OnlineCourseDisplay from './Landing_page_pages/OnlineCourseDisplay';
 import ManageDegreesWrapper from './Admin_pages/ManageDegreesWrapper';
 import ViewQuizPage from './Student_pages/ViewQuiz';
 
+import ViewOnlineQuiz from './OnlineQuiz/ViewOnlineQuiz';
 
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/results" element={<StudentResultDisplay />} />
             <Route path="/quizzes" element={<ViewQuizPage />} />
+            <Route path="/online_quizzes" element={<ViewOnlineQuiz />} />
 
          //Landing Page's pages   
 

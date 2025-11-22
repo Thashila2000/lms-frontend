@@ -15,32 +15,30 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
   });
 
   // Resolve degreeId from badgeSlug
- useEffect(() => {
-  if (!badgeSlug) return;
+  useEffect(() => {
+    if (!badgeSlug) return;
 
-  const fetchDegreeId = async () => {
-    try {
-      const res = await fetch(`http://localhost:8080/api/degrees/byName/${badgeSlug}`);
-      const degree = await res.json();
-
-      if (degree?.id) {
-        setDegreeId(degree.id); // Extract the id from the object
-        console.log("Resolved degreeId:", degree.id);
-      } else {
-        console.warn("Invalid degree object from slug:", degree);
+    const fetchDegreeId = async () => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/degrees/byName/${badgeSlug}`);
+        const degree = await res.json();
+        if (degree?.id) {
+          setDegreeId(degree.id);
+        } else {
+          console.warn("Invalid degree object from slug:", degree);
+        }
+      } catch (error) {
+        console.error("Error fetching degreeId:", error);
       }
-    } catch (error) {
-      console.error("Error fetching degreeId:", error);
-      console.log("Received badgeSlug:", badgeSlug);
-    }
-  };
+    };
 
-  fetchDegreeId();
-}, [badgeSlug]);
+    fetchDegreeId();
+  }, [badgeSlug]);
 
   // Fetch tasks for resolved degreeId
   useEffect(() => {
     if (!degreeId) return;
+
     const fetchTasks = async () => {
       try {
         const res = await fetch(`http://localhost:8080/api/tasks/schedule?degreeId=${degreeId}`);
@@ -49,7 +47,6 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
           const sorted = [...data].sort((a, b) => new Date(a.computedStart) - new Date(b.computedStart));
           setTasks(sorted);
         } else {
-          console.warn("Expected array but got:", data);
           setTasks([]);
         }
       } catch (error) {
@@ -57,6 +54,7 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
         setTasks([]);
       }
     };
+
     fetchTasks();
   }, [degreeId, refreshTrigger]);
 
@@ -70,6 +68,16 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
       day: "numeric",
       month: "short",
     });
+  };
+
+  const getStatusLabel = (task) => {
+    const now = new Date();
+    const start = new Date(task.computedStart);
+    const end = new Date(task.computedEnd);
+
+    if (now < start) return { label: "Upcoming", style: "bg-yellow-100 text-yellow-700" };
+    if (now >= start && now <= end) return { label: "Active", style: "bg-green-100 text-green-700" };
+    return { label: "Expired", style: "bg-gray-200 text-gray-600" };
   };
 
   const handleDelete = async (id) => {
@@ -116,9 +124,7 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
 
       if (response.ok) {
         const updated = await response.json();
-        setTasks((prev) =>
-          prev.map((t) => (t.id === updated.id ? updated : t))
-        );
+        setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
         setEditingTask(null);
         resetEditData();
       } else {
@@ -152,48 +158,46 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
 
       <div className="space-y-3 overflow-y-auto max-h-[450px] scrollbar-thin scrollbar-thumb-indigo-400 scrollbar-track-indigo-100">
         {tasks.length > 0 ? (
-          tasks.map((task) => (
-            <motion.div
-              key={task.id}
-              whileHover={{ scale: 1.03 }}
-              className="p-4 transition-all duration-300 bg-white border border-indigo-100 shadow-sm rounded-xl hover:shadow-md"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <h4 className="text-base font-semibold text-gray-800">{task.name}</h4>
-                <span
-                  className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    task.priority === 1
-                      ? "bg-green-100 text-green-600"
-                      : task.priority === 2
-                      ? "bg-yellow-100 text-yellow-600"
-                      : "bg-red-100 text-red-600"
-                  }`}
-                >
-                  Priority {task.priority}
-                </span>
-              </div>
-              <p className="text-sm text-gray-600">Duration: {task.duration}h</p>
-              <p className="flex items-center mt-1 text-sm text-gray-600">
-                <FaClock className="mr-1 text-indigo-500" /> {formatTime(task.startTime)}
-              </p>
-              <div className="flex justify-end gap-3 mt-3">
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => startEditing(task)}
-                  className="flex items-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-yellow-500 rounded-lg hover:bg-yellow-600"
-                >
-                  <FaEdit className="mr-1" /> Edit
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => handleDelete(task.id)}
-                  className="flex items-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-red-500 rounded-lg hover:bg-red-600"
-                >
-                  <FaTrashAlt className="mr-1" /> Delete
-                </motion.button>
-              </div>
-            </motion.div>
-          ))
+          tasks.map((task) => {
+            const status = getStatusLabel(task);
+            return (
+              <motion.div
+                key={task.id}
+                whileHover={{ scale: 1.03 }}
+                className="p-4 transition-all duration-300 bg-white border border-indigo-100 shadow-sm rounded-xl hover:shadow-md"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <h4 className="text-base font-semibold text-gray-800">{task.name}</h4>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${status.style}`}>
+                    {status.label}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">Duration: {task.duration}h</p>
+                <p className="flex items-center mt-1 text-sm text-gray-600">
+                  <FaClock className="mr-1 text-indigo-500" /> Start: {formatTime(task.computedStart)}
+                </p>
+                <p className="flex items-center mt-1 text-sm text-gray-600">
+                  <FaClock className="mr-1 text-purple-500" /> End: {formatTime(task.computedEnd)}
+                </p>
+                <div className="flex justify-end gap-3 mt-3">
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => startEditing(task)}
+                    className="flex items-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-yellow-500 rounded-lg hover:bg-yellow-600"
+                  >
+                    <FaEdit className="mr-1" /> Edit
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => handleDelete(task.id)}
+                    className="flex items-center px-3 py-1.5 text-xs font-medium text-white transition-all bg-red-500 rounded-lg hover:bg-red-600"
+                  >
+                    <FaTrashAlt className="mr-1" /> Delete
+                  </motion.button>
+                </div>
+              </motion.div>
+            );
+          })
         ) : (
           <p className="py-10 text-center text-gray-500">No tasks found.</p>
         )}
@@ -206,9 +210,7 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
           transition={{ duration: 0.3 }}
           className="p-4 mt-6 bg-white border-t border-indigo-200 shadow-inner rounded-xl"
         >
-          <h4 className="mb-3 text-sm font-semibold text-indigo-700">
-            Editing: {editingTask.name}
-          </h4>
+          <h4 className="mb-3 text-sm font-semibold text-indigo-700">Editing: {editingTask.name}</h4>
           <input
             type="text"
             value={editData.name}
@@ -219,13 +221,11 @@ function ViewScheduleList({ badgeSlug, onEdit, refreshTrigger }) {
           <input
             type="number"
             value={editData.duration}
-            onChange={(e) =>
-              setEditData({ ...editData, duration: parseInt(e.target.value) || 0 })
-            }
+            onChange={(e) => setEditData({ ...editData, duration: parseInt(e.target.value) || 0 })}
             placeholder="Duration (hours)"
             className="w-full px-3 py-2 mb-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
           />
-          <input
+                   <input
             type="number"
             value={editData.priority}
             onChange={(e) =>

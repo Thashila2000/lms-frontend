@@ -64,7 +64,6 @@ export default function AdminNavbar({ searchQuery, setSearchQuery }) {
     { label: "Home", path: "/admin_home" },
     { label: "Students", path: "/students" },
     { label: "Classrooms", path: "/classrooms" },
-    { label: "Add Schedules", path: "/add_schedule" },
     { label: "Manage Courses", path: "/manage_courses" },
     { label: "Manage Degrees", path: "/manage_degrees" },
     { label: "Register", path: "/register" },
