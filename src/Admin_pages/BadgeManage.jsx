@@ -10,7 +10,7 @@ const BadgeManage = () => {
 
   const handleResultSubmit = (data) => {
     console.log("Submitted Result:", data);
-    // TODO: Send to backend or update state
+  
   };
 
   useEffect(() => {

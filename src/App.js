@@ -23,6 +23,7 @@ import ManageDegreesWrapper from './Admin_pages/ManageDegreesWrapper';
 import ViewQuizPage from './Student_pages/ViewQuiz';
 
 import ViewOnlineQuiz from './OnlineQuiz/ViewOnlineQuiz';
+import QuizList from './OnlineQuiz/QuizList';
 
 
 function App() {
@@ -58,7 +59,13 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/results" element={<StudentResultDisplay />} />
             <Route path="/quizzes" element={<ViewQuizPage />} />
-            <Route path="/online_quizzes" element={<ViewOnlineQuiz />} />
+            {/* Quiz list page */}
+           <Route path="/quiz_list" element={<QuizList />} />
+
+           {/* View a single quiz by ID */}
+           <Route path="/quiz/:quizId" element={<ViewOnlineQuiz />} />
+
+
 
          //Landing Page's pages   
 

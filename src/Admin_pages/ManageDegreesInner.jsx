@@ -39,7 +39,7 @@ const ManageDegreesInner = () => {
     }
   };
 
-  // Move these OUTSIDE fetchAll
+  
   const handleEditCategory = (category) => {
     setEditingCategory(category);
   };
@@ -103,13 +103,16 @@ const ManageDegreesInner = () => {
           onDelete={handleDeleteCategory}
           onRefresh={fetchAll}
         />
-        <AddDegree onRefresh={fetchAll} />
-        <DegreeList
-          degrees={degrees}
-          onEdit={handleEditDegree}
-          onDelete={handleDeleteDegree}
-          onRefresh={fetchAll}
-        />
+       <AddDegree onRefresh={fetchAll} />
+
+       <div className="mb-10">
+         <DegreeList
+         degrees={degrees}
+         onEdit={handleEditDegree}
+         onDelete={handleDeleteDegree}
+         onRefresh={fetchAll}
+      />
+   </div>
       </motion.div>
     </>
   );

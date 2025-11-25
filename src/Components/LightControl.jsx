@@ -3,7 +3,8 @@ import { FaLightbulb, FaPowerOff, FaRobot } from "react-icons/fa";
 import { BsWifi, BsWifiOff } from "react-icons/bs";
 import { motion } from "framer-motion";
 
-const API_BASE = "http://192.168.8.115"; // Your ESP8266 IP
+// ESP8266 IP
+const API_BASE = "http://192.168.8.115"; 
 
 export default function SmartLight() {
   const [status, setStatus] = useState("Loading...");

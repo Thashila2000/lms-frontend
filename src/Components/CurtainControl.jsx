@@ -6,6 +6,7 @@ import {
   PauseIcon,
 } from "@heroicons/react/24/solid";
 
+//ESP8266 IP
 const API_BASE = "http://192.168.8.167";
 
 export default function CurtainControl() {
@@ -21,7 +22,7 @@ export default function CurtainControl() {
         setStatus(cmd === "open" ? "opening" : "closing");
 
         let tries = 0;
-        const pollInterval = setInterval(async () => {
+        const pollInterval = setInterval(async () => { 
           tries++;
           try {
             const res = await fetch(`${API_BASE}/status`);
